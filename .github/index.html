@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人作品集 | 新颖态设计</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1', // 主色调：柔和紫色
+            secondary: '#8b5cf6', // 辅助色：深紫色
+            neutral: '#f0f4f8', // 中性色：浅灰蓝（新颖态背景）
+            dark: '#1e293b', // 深色文本
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            // 新颖态阴影预设
+            'neu-flat': '5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff',
+            'neu-pressed': 'inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff',
+            'neu-small': '3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff',
+            'neu-small-pressed': 'inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff',
+          },
+        },
+      }
+    }
+  </script>
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .neu-transition {
+        transition: all 0.3s ease;
+      }
+      .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        background-image: linear-gradient(135deg, #6366f1, #8b5cf6);
+      }
+      .bg-neu-gradient {
+        background: linear-gradient(145deg, #e2e8f0, #ffffff);
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    }
+  </style>
+  <style>
+    /* 基础样式 */
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: #f0f4f8;
+      color: #1e293b;
+    }
+    /* 新颖态输入框焦点效果 */
+    input:focus, textarea:focus {
+      outline: none;
+      box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff, 0 0 0 2px rgba(99, 102, 241, 0.3);
+    }
+    /* 项目卡片悬停动画 */
+    .project-card:hover {
+      transform: translateY(-5px);
+    }
+    .project-card:hover .project-img {
+      filter: brightness(0.8);
+    }
+    /* 导航栏滚动效果 */
+    .nav-scrolled {
+      backdrop-filter: blur(8px);
+      background-color: rgba(240, 244, 248, 0.9);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+  <!-- 导航栏 -->
+  <nav id="navbar" class="fixed w-full z-50 py-4 transition-all duration-300">
+    <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-gradient flex items-center">
+        <span class="mr-2"><i class="fa fa-code"></i></span>
+        <span>DevPortfolio</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <div class="hidden md:flex space-x-8">
+        <a href="#home" class="font-medium hover:text-primary neu-transition">首页</a>
+        <a href="#about" class="font-medium hover:text-primary neu-transition">关于我</a>
+        <a href="#skills" class="font-medium hover:text-primary neu-transition">技能</a>
+        <a href="#projects" class="font-medium hover:text-primary neu-transition">项目</a>
+        <a href="#contact" class="font-medium hover:text-primary neu-transition">联系</a>
+      </div>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menuBtn" class="md:hidden w-12 h-12 rounded-xl bg-neutral flex items-center justify-center shadow-neu-small neu-transition hover:shadow-neu-pressed">
+        <i class="fa fa-bars text-dark text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden absolute top-full left-0 w-full bg-neutral shadow-neu-flat mt-2 rounded-b-xl p-4">
+      <div class="flex flex-col space-y-4">
+        <a href="#home" class="py-2 font-medium hover:text-primary neu-transition">首页</a>
+        <a href="#about" class="py-2 font-medium hover:text-primary neu-transition">关于我</a>
+        <a href="#skills" class="py-2 font-medium hover:text-primary neu-transition">技能</a>
+        <a href="#projects" class="py-2 font-medium hover:text-primary neu-transition">项目</a>
+        <a href="#contact" class="py-2 font-medium hover:text-primary neu-transition">联系</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 英雄区域 -->
+  <section id="home" class="min-h-screen flex items-center pt-20 pb-16">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row items-center gap-12">
+        <div class="md:w-1/2 space-y-6">
+          <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight">
+            你好，我是<span class="text-gradient">小钟</span>
+            <br>我是人工智能专业的小白
+          </h1>
+          <p class="text-lg text-gray-600 max-w-lg">
+          <p class="text-lg text-gray-600 max-w-lg">
+            一名热爱编程与设计的广东高校学生，主修人工智能，正在夯实前端与 Python 基础。喜欢把简洁的代码和舒适的视觉体验结合起来，持续探索新技术，也期待与学长学姐们多多交流、共同进步。
+          </p>
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#projects" class="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium shadow-neu-small neu-transition hover:shadow-lg transform hover:-translate-y-1">
+              查看作品
+            </a>
+            <a href="#contact" class="px-8 py-3 rounded-xl bg-red-500 text-white font-medium shadow-neu-flat neu-transition hover:shadow-neu-pressed">
+              联系我
+            </a>
+          </div>
+          <div class="flex space-x-6 pt-4">
+            <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+              <i class="fa fa-github"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+              <i class="fa fa-linkedin"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+              <i class="fa fa-codepen"></i>
+            </a>
+          </div>
+        </div>
+        <div class="md:w-1/2">
+          <!-- 新颖态头像容器 -->
+          <div class="w-80 h-80 mx-auto rounded-full bg-neutral shadow-neu-flat flex items-center justify-center p-4">
+            <div class="w-72 h-72 rounded-full overflow-hidden shadow-neu-pressed">
+              <img src="https://picsum.photos/id/1012/600/600" alt="个人头像" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <!-- 装饰元素 -->
+          <div class="absolute -z-10 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/5 blur-3xl"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于我 -->
+  <section id="about" class="py-20 bg-neutral">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">关于我</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
+      </div>
+      
+      <div class="bg-neutral rounded-3xl shadow-neu-flat p-8 md:p-12">
+        <div class="flex flex-col md:flex-row gap-10">
+          <div class="md:w-1/3">
+            <div class="rounded-2xl overflow-hidden shadow-neu-pressed">
+              <img src="https://picsum.photos/id/1005/600/800" alt="个人照片" class="w-full h-auto">
+            </div>
+          </div>
+          <div class="md:w-2/3 space-y-6">
+            <h3 class="text-2xl font-bold">前端开发工程师 & python设计师</h3>
+            <p class="text-gray-600 leading-relaxed">
+              我的专业是人工智能，现在处于学习一些基础的知识，比较热爱这一方面的知识。
+            </p>
+            <p class="text-gray-600 leading-relaxed">
+              我喜欢多种前端技术和工具，需要不断学习和探索新的开发趋势和设计理念，希望学长学姐多多帮助我
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+              <div class="rounded-xl bg-neutral shadow-neu-small p-4 flex items-center">
+                <i class="fa fa-calendar text-primary text-xl mr-4"></i>
+                <div>
+                  <h4 class="font-medium">经验</h4>
+                  <p class="text-gray-600">一年不到  前端开发</p>
+                </div>
+              </div>
+              <div class="rounded-xl bg-neutral shadow-neu-small p-4 flex items-center">
+                <i class="fa fa-graduation-cap text-primary text-xl mr-4"></i>
+                <div>
+                  <h4 class="font-medium">学历</h4>
+                  <p class="text-gray-600">人工智能学学士</p>
+                </div>
+              </div>
+              <div class="rounded-xl bg-neutral shadow-neu-small p-4 flex items-center">
+                <i class="fa fa-map-marker text-primary text-xl mr-4"></i>
+                <div>
+                  <h4 class="font-medium">所在地</h4>
+                  <p class="text-gray-600">中国·广东</p>
+                </div>
+              </div>
+              <div class="rounded-xl bg-neutral shadow-neu-small p-4 flex items-center">
+                <i class="fa fa-envelope text-primary text-xl mr-4"></i>
+                <div>
+                  <h4 class="font-medium">邮箱</h4>
+                  <p class="text-gray-600">3505789392@qq.com</p>
+                </div>
+              </div>
+            </div>
+            
+            <a href="#" class="inline-block px-6 py-3 rounded-xl bg-neutral text-primary font-medium shadow-neu-small neu-transition hover:shadow-neu-pressed mt-4">
+              下载简历 <i class="fa fa-download ml-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 技能 -->
+  <section id="skills" class="py-20">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">我的技能</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto mt-4">
+          我现在在python和前端开发中学习
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 技能卡片1 -->
+        <div class="rounded-2xl bg-neutral shadow-neu-flat p-6 neu-transition hover:shadow-lg transform hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-xl bg-primary/10 shadow-neu-small flex items-center justify-center mb-6">
+            <i class="fa fa-html5 text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">前端开发</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">HTML5/CSS3</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 95%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">JavaScript</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">React/Vue</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Tailwind CSS</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 技能卡片2 -->
+        <div class="rounded-2xl bg-neutral shadow-neu-flat p-6 neu-transition hover:shadow-lg transform hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-xl bg-secondary/10 shadow-neu-small flex items-center justify-center mb-6">
+            <i class="fa fa-paint-brush text-secondary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">UI/UX设计</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">新颖态设计</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full" style="width: 94%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">响应式设计</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full" style="width: 91%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Figma</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">原型设计</span>
+                <span class="text-sm">10%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-neutral shadow-neu-pressed overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full" style="width: 86%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 技能卡片3 -->
+        <div class="rounded-2xl bg-neutral shadow-neu-flat p-6 neu-transition hover:shadow-lg transform hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-xl bg-primary/10 shadow-neu-small flex items-center justify-center mb-6">
+            <i class="fa fa-tools text-primary text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">开发工具</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-code text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">VS Code</span>
+            </div>
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-git text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">Git</span>
+            </div>
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-terminal text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">Webpack</span>
+            </div>
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-test text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">Jest</span>
+            </div>
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-chrome text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">Chrome DevTools</span>
+            </div>
+            <div class="rounded-xl bg-neutral shadow-neu-small p-3 flex flex-col items-center justify-center text-center">
+              <i class="fa fa-cloud text-primary text-xl mb-2"></i>
+              <span class="text-sm font-medium">Netlify/Vercel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 项目作品 -->
+  <section id="projects" class="py-20 bg-neutral">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">我的项目</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto mt-4">
+          这里展示了我近年来完成的一些精选项目，每个项目都体现了我的设计理念和技术能力
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 项目卡片1 -->
+        <div class="project-card rounded-2xl bg-neutral shadow-neu-flat overflow-hidden neu-transition">
+          <div class="project-img overflow-hidden">
+            <img src="https://picsum.photos/id/180/800/600" alt="项目截图" class="w-full h-56 object-cover transition-all duration-500">
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xl font-bold">电商平台UI设计</h3>
+              <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">UI/UX</span>
+            </div>
+            <p class="text-gray-600 text-sm">
+              基于新颖态设计的电商平台界面，注重用户体验和视觉层次感，包含完整的购物流程和响应式布局。
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">Figma</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">新颖态</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">响应式</span>
+            </div>
+            <div class="flex justify-between pt-2">
+              <a href="#" class="text-primary font-medium text-sm hover:underline">查看详情</a>
+              <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-external-link"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 项目卡片2 -->
+        <div class="project-card rounded-2xl bg-neutral shadow-neu-flat overflow-hidden neu-transition">
+          <div class="project-img overflow-hidden">
+            <img src="https://picsum.photos/id/48/800/600" alt="项目截图" class="w-full h-56 object-cover transition-all duration-500">
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xl font-bold">任务管理应用</h3>
+              <span class="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">React</span>
+            </div>
+            <p class="text-gray-600 text-sm">
+              基于React和Tailwind CSS构建的任务管理应用，具有拖拽功能、标签分类和数据可视化特性。
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">React</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">Tailwind</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">Firebase</span>
+            </div>
+            <div class="flex justify-between pt-2">
+              <a href="#" class="text-primary font-medium text-sm hover:underline">查看详情</a>
+              <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-github"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 项目卡片3 -->
+        <div class="project-card rounded-2xl bg-neutral shadow-neu-flat overflow-hidden neu-transition">
+          <div class="project-img overflow-hidden">
+            <img src="https://picsum.photos/id/26/800/600" alt="项目截图" class="w-full h-56 object-cover transition-all duration-500">
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xl font-bold">天气应用</h3>
+              <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">Vue</span>
+            </div>
+            <p class="text-gray-600 text-sm">
+              实时天气查询应用，集成了天气API，提供7天预报和空气质量指数，采用新颖态设计风格。
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">Vue 3</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">API</span>
+              <span class="px-2 py-1 rounded-lg bg-neutral shadow-neu-small text-xs">新颖态</span>
+            </div>
+            <div class="flex justify-between pt-2">
+              <a href="#" class="text-primary font-medium text-sm hover:underline">查看详情</a>
+              <a href="#" class="w-10 h-10 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-external-link"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12">
+        <a href="#" class="inline-block px-8 py-3 rounded-xl bg-neutral text-primary font-medium shadow-neu-flat neu-transition hover:shadow-neu-pressed">
+          查看更多项目 <i class="fa fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系 -->
+  <section id="contact" class="py-20">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">联系我</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto mt-4">
+          有任何问题或合作意向？请随时联系我，我会尽快回复您
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="rounded-3xl bg-neutral shadow-neu-flat p-8">
+          <h3 class="text-2xl font-bold mb-6">发送消息</h3>
+          <form class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="name" class="block text-sm font-medium mb-2">姓名</label>
+                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl bg-neutral shadow-neu-small border-0 neu-transition focus:shadow-neu-pressed" placeholder="您的姓名">
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium mb-2">邮箱</label>
+                <input type="email" id="email" class="w-full px-4 py-3 rounded-xl bg-neutral shadow-neu-small border-0 neu-transition focus:shadow-neu-pressed" placeholder="您的邮箱">
+              </div>
+            </div>
+            <div>
+              <label for="subject" class="block text-sm font-medium mb-2">主题</label>
+              <input type="text" id="subject" class="w-full px-4 py-3 rounded-xl bg-neutral shadow-neu-small border-0 neu-transition focus:shadow-neu-pressed" placeholder="消息主题">
+            </div>
+            <div>
+              <label for="message" class="block text-sm font-medium mb-2">消息</label>
+              <textarea id="message" rows="5" class="w-full px-4 py-3 rounded-xl bg-neutral shadow-neu-small border-0 neu-transition focus:shadow-neu-pressed resize-none" placeholder="请输入您的消息..."></textarea>
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium shadow-neu-small neu-transition hover:shadow-lg transform hover:-translate-y-1">
+              发送消息 <i class="fa fa-paper-plane ml-2"></i>
+            </button>
+          </form>
+        </div>
+        
+        <div class="space-y-8">
+          <div class="rounded-3xl bg-neutral shadow-neu-flat p-8">
+            <h3 class="text-2xl font-bold mb-6">联系方式</h3>
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 shadow-neu-small flex items-center justify-center mr-4 flex-shrink-0">
+                  <i class="fa fa-map-marker text-primary text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium mb-1">地址</h4>
+                  <p class="text-gray-600">华南农业大学珠江学院</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 shadow-neu-small flex items-center justify-center mr-4 flex-shrink-0">
+                  <i class="fa fa-phone text-primary text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium mb-1">电话</h4>
+                  <p class="text-gray-600">+86 18163285389</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 shadow-neu-small flex items-center justify-center mr-4 flex-shrink-0">
+                  <i class="fa fa-envelope text-primary text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium mb-1">邮箱</h4>
+                  <p class="text-gray-600">3505789392@qq.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="rounded-3xl bg-neutral shadow-neu-flat p-8">
+            <h3 class="text-xl font-bold mb-6">关注我</h3>
+            <div class="flex flex-wrap gap-4">
+              <a href="#" class="w-12 h-12 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-github text-xl"></i>
+              </a>
+              <a href="#" class="w-12 h-12 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-linkedin text-xl"></i>
+              </a>
+              <a href="#" class="w-12 h-12 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-twitter text-xl"></i>
+              </a>
+              <a href="#" class="w-12 h-12 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-instagram text-xl"></i>
+              </a>
+              <a href="#" class="w-12 h-12 rounded-full bg-neutral shadow-neu-small flex items-center justify-center neu-transition hover:shadow-neu-pressed hover:text-primary">
+                <i class="fa fa-codepen text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-neutral py-12">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <a href="#" class="text-2xl font-bold text-gradient flex items-center mb-6 md:mb-0">
+          <span class="mr-2"><i class="fa fa-code"></i></span>
+          <span>DevPortfolio</span>
+        </a>
+        
+        <div class="flex flex-wrap justify-center gap-6 md:gap-8 mb-6 md:mb-0">
+          <a href="#home" class="font-medium hover:text-primary neu-transition">首页</a>
+          <a href="#about" class="font-medium hover:text-primary neu-transition">关于我</a>
+          <a href="#skills" class="font-medium hover:text-primary neu-transition">技能</a>
+          <a href="#projects" class="font-medium hover:text-primary neu-transition">项目</a>
+          <a href="#contact" class="font-medium hover:text-primary neu-transition">联系</a>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-600 text-sm mb-4 md:mb-0">
+          &copy; 2024 DevPortfolio. 保留所有权利。
+        </p>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-600 hover:text-primary neu-transition">
+            <i class="fa fa-github"></i>
+          </a>
+          <a href="#" class="text-gray-600 hover:text-primary neu-transition">
+            <i class="fa fa-linkedin"></i>
+          </a>
+          <a href="#" class="text-gray-600 hover:text-primary neu-transition">
+            <i class="fa fa-twitter"></i>
+          </a>
+          <a href="#" class="text-gray-600 hover:text-primary neu-transition">
+            <i class="fa fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="backToTop" class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-white shadow-neu-flat flex items-center justify-center neu-transition opacity-0 invisible hover:shadow-lg transform hover:-translate-y-1">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('nav-scrolled');
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.remove('nav-scrolled');
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+    
+    // 移动端菜单切换
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      const icon = menuBtn.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      } else {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+      }
+    });
+    
+    // 关闭移动端菜单（点击菜单项后）
+    const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        const icon = menuBtn.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+      });
+    });
+    
+    // 回到顶部功能
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 项目卡片动画
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-10');
+        }
+      });
+    }, observerOptions);
+    
+    projectCards.forEach(card => {
+      card.classList.add('opacity-0', 'translate-y-10', 'transition-all', 'duration-700');
+      observer.observe(card);
+    });
+  </script>
+</body>
+</html>
