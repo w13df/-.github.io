@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2025年双11购物节数据分析</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- 引入Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF4D4F',    // 双11红色
+            secondary: '#1890FF',  // 辅助蓝色
+            accent: '#FF7A45',     // 强调橙色
+            dark: '#1D2129',       // 深色文本
+            light: '#F2F3F5',      // 浅色背景
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+      }
+      .hover-scale {
+        transition: transform 0.3s ease;
+      }
+      .hover-scale:hover {
+        transform: scale(1.02);
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #FFF6F6 0%, #FFEEEE 100%);
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-dark">
+  <!-- 顶部导航栏 -->
+  <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+            <i class="fa fa-shopping-bag text-xl"></i>
+          </div>
+          <h1 class="text-xl font-bold text-primary">2025双11数据分析</h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="#overview" class="font-medium hover:text-primary transition-colors">概览</a>
+          <a href="#top-products" class="font-medium hover:text-primary transition-colors">热门商品</a>
+          <a href="#price-distribution" class="font-medium hover:text-primary transition-colors">价格分布</a>
+          <a href="#purchase-trends" class="font-medium hover:text-primary transition-colors">购买趋势</a>
+          <a href="#user-demographics" class="font-medium hover:text-primary transition-colors">用户分析</a>
+        </nav>
+        
+        <div class="flex items-center space-x-4">
+          <div class="relative hidden md:block">
+            <input type="text" placeholder="搜索商品..." class="w-64 pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+          
+          <button class="md:hidden text-dark hover:text-primary">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 移动端菜单 -->
+  <div class="fixed inset-0 bg-black/50 z-40 hidden" id="mobile-menu">
+    <div class="h-full w-3/4 max-w-sm bg-white p-6 overflow-y-auto">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-xl font-bold text-primary">菜单</h2>
+        <button id="close-menu" class="text-gray-500 hover:text-primary">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <nav class="flex flex-col space-y-6">
+        <a href="#overview" class="font-medium text-lg hover:text-primary transition-colors mobile-link">概览</a>
+        <a href="#top-products" class="font-medium text-lg hover:text-primary transition-colors mobile-link">热门商品</a>
+        <a href="#price-distribution" class="font-medium text-lg hover:text-primary transition-colors mobile-link">价格分布</a>
+        <a href="#purchase-trends" class="font-medium text-lg hover:text-primary transition-colors mobile-link">购买趋势</a>
+        <a href="#user-demographics" class="font-medium text-lg hover:text-primary transition-colors mobile-link">用户分析</a>
+      </nav>
+      
+      <div class="mt-8">
+        <div class="relative">
+          <input type="text" placeholder="搜索商品..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+    <!-- 英雄区 -->
+    <section class="gradient-bg rounded-2xl p-8 mb-12">
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-primary mb-4">2025年双11购物节</h1>
+        <p class="text-[clamp(1rem,2vw,1.25rem)] text-gray-700 mb-8">全面解析用户购买行为、热门商品趋势和消费模式</p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+            查看完整报告
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-primary font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg hover:-translate-y-1">
+            下载数据 <i class="fa fa-download ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 概览部分 -->
+    <section id="overview" class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">购物节概览</h2>
+        <div class="flex space-x-2">
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all active-filter">
+            全部
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            热销商品
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            用户分析
+          </button>
+        </div>
+      </div>
+      
+      <!-- 数据卡片 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">总销售额</h3>
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <i class="fa fa-line-chart"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥1,254亿</p>
+          <div class="flex items-center text-sm">
+            <span class="text-green-500 flex items-center">
+              <i class="fa fa-arrow-up mr-1"></i> 18.2%
+            </span>
+            <span class="text-gray-500 ml-2">较去年同期</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">订单总数</h3>
+            <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+              <i class="fa fa-shopping-cart"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">4.86亿</p>
+          <div class="flex items-center text-sm">
+            <span class="text-green-500 flex items-center">
+              <i class="fa fa-arrow-up mr-1"></i> 22.5%
+            </span>
+            <span class="text-gray-500 ml-2">较去年同期</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">活跃用户</h3>
+            <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+              <i class="fa fa-users"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">8.2亿</p>
+          <div class="flex items-center text-sm">
+            <span class="text-green-500 flex items-center">
+              <i class="fa fa-arrow-up mr-1"></i> 15.8%
+            </span>
+            <span class="text-gray-500 ml-2">较去年同期</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">客单价</h3>
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
+              <i class="fa fa-money"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥2,580</p>
+          <div class="flex items-center text-sm">
+            <span class="text-green-500 flex items-center">
+              <i class="fa fa-arrow-up mr-1"></i> 8.4%
+            </span>
+            <span class="text-gray-500 ml-2">较去年同期</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 销售趋势图 -->
+      <div class="bg-white rounded-xl p-6 shadow-lg">
+        <h3 class="text-xl font-bold mb-6">双11期间销售趋势</h3>
+        <div class="h-80">
+          <canvas id="sales-trend-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 热门商品部分 -->
+    <section id="top-products" class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">热门商品排行榜</h2>
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <select class="appearance-none bg-white border border-gray-300 text-dark font-medium py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option>按销量排序</option>
+              <option>按销售额排序</option>
+              <option>按增长率排序</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400"></i>
+          </div>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            查看全部 <i class="fa fa-angle-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 热门商品表格 -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">排名</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">商品信息</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">价格</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">销量</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">销售额</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">趋势</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <!-- 商品1 -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="bg-primary text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">1</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12 relative">
+                      <img class="h-12 w-12 rounded-md object-cover" src="https://picsum.photos/id/1/200/200" alt="智能手机">
+                      <div class="absolute top-0 right-0 bg-primary text-white text-xs px-1 rounded">
+                        热销
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">超级智能手机 X50 Pro</div>
+                      <div class="text-sm text-gray-500">电子产品</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥5,999</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">2,568,943</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥15.4亿</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center text-green-500">
+                    <i class="fa fa-arrow-up mr-1"></i>
+                    <span class="text-sm font-medium">+32.5%</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- 商品2 -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="bg-gray-200 text-gray-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">2</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12 relative">
+                      <img class="h-12 w-12 rounded-md object-cover" src="https://picsum.photos/id/20/200/200" alt="笔记本电脑">
+                      <div class="absolute top-0 right-0 bg-secondary text-white text-xs px-1 rounded">
+                        新品
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">超薄笔记本电脑 AirBook</div>
+                      <div class="text-sm text-gray-500">电子产品</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥7,999</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">1,876,542</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥14.9亿</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center text-green-500">
+                    <i class="fa fa-arrow-up mr-1"></i>
+                    <span class="text-sm font-medium">+28.3%</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- 商品3 -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="bg-amber-200 text-amber-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">3</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12">
+                      <img class="h-12 w-12 rounded-md object-cover" src="https://picsum.photos/id/96/200/200" alt="智能手表">
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">智能手表 FitWatch 5</div>
+                      <div class="text-sm text-gray-500">可穿戴设备</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥1,299</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">4,321,987</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥5.6亿</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center text-green-500">
+                    <i class="fa fa-arrow-up mr-1"></i>
+                    <span class="text-sm font-medium">+45.2%</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- 商品4 -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="bg-gray-300 text-gray-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">4</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12">
+                      <img class="h-12 w-12 rounded-md object-cover" src="https://picsum.photos/id/66/200/200" alt="无线耳机">
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">无线降噪耳机 ProBuds</div>
+                      <div class="text-sm text-gray-500">音频设备</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥899</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">5,123,456</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥4.6亿</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center text-green-500">
+                    <i class="fa fa-arrow-up mr-1"></i>
+                    <span class="text-sm font-medium">+38.7%</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- 商品5 -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="bg-gray-300 text-gray-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">5</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12">
+                      <img class="h-12 w-12 rounded-md object-cover" src="https://picsum.photos/id/26/200/200" alt="空气净化器">
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">智能空气净化器</div>
+                      <div class="text-sm text-gray-500">家用电器</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥1,499</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">3,219,876</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥4.8亿</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center text-green-500">
+                    <i class="fa fa-arrow-up mr-1"></i>
+                    <span class="text-sm font-medium">+26.9%</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 价格分布部分 -->
+    <section id="price-distribution" class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">价格区间分布</h2>
+        <div class="flex items-center space-x-4">
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all active-filter">
+            销量分布
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            销售额分布
+          </button>
+        </div>
+      </div>
+      
+      <!-- 价格分布图 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">价格区间销量分布</h3>
+          <div class="h-80">
+            <canvas id="price-range-chart"></canvas>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">各品类平均价格</h3>
+          <div class="h-80">
+            <canvas id="category-price-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 价格区间分析 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">低价商品</h3>
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
+              <i class="fa fa-tag"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥0-500</p>
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">占总销量的</span>
+            <span class="text-primary font-semibold ml-1">38.5%</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">中价商品</h3>
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
+              <i class="fa fa-tags"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥500-2000</p>
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">占总销量的</span>
+            <span class="text-primary font-semibold ml-1">42.3%</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">高价商品</h3>
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
+              <i class="fa fa-diamond"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥2000-5000</p>
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">占总销量的</span>
+            <span class="text-primary font-semibold ml-1">15.7%</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg hover-scale card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">奢侈商品</h3>
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
+              <i class="fa fa-gem"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-dark mb-2">¥5000+</p>
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">占总销量的</span>
+            <span class="text-primary font-semibold ml-1">3.5%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 购买趋势部分 -->
+    <section id="purchase-trends" class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">购买行为趋势</h2>
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <select class="appearance-none bg-white border border-gray-300 text-dark font-medium py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option>2025年</option>
+              <option>2024年</option>
+              <option>2023年</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400"></i>
+          </div>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            导出数据
+          </button>
+        </div>
+      </div>
+      
+      <!-- 购买时间趋势 -->
+      <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
+        <h3 class="text-xl font-bold mb-6">双11当天购买时间分布</h3>
+        <div class="h-80">
+          <canvas id="purchase-time-chart"></canvas>
+        </div>
+      </div>
+      
+      <!-- 购买设备和支付方式 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">用户购买设备分布</h3>
+          <div class="h-80">
+            <canvas id="device-distribution-chart"></canvas>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">支付方式偏好</h3>
+          <div class="h-80">
+            <canvas id="payment-method-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 用户分析部分 -->
+    <section id="user-demographics" class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">用户画像分析</h2>
+        <div class="flex items-center space-x-4">
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all active-filter">
+            消费能力
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            地域分布
+          </button>
+          <button class="bg-white hover:bg-gray-50 text-dark font-medium py-2 px-4 rounded-lg shadow transition-all">
+            年龄结构
+          </button>
+        </div>
+      </div>
+      
+      <!-- 用户年龄和性别分布 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">用户年龄分布</h3>
+          <div class="h-80">
+            <canvas id="age-distribution-chart"></canvas>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-bold mb-6">用户性别比例</h3>
+          <div class="h-80">
+            <canvas id="gender-ratio-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 用户消费能力分析 -->
+      <div class="bg-white rounded-xl p-6 shadow-lg mt-6">
+        <h3 class="text-xl font-bold mb-6">用户消费能力分析</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">消费等级</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">用户占比</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">平均消费</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">热门品类</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">购买频次</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
+                      <i class="fa fa-diamond"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">高消费用户</div>
+                      <div class="text-sm text-gray-500">¥5000+</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">8.2%</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥8,642</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">高端数码、奢侈品、大家电</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">3.2次/年</div>
+                </td>
+              </tr>
+              
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
+                      <i class="fa fa-gem"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">中高消费用户</div>
+                      <div class="text-sm text-gray-500">¥2000-5000</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">24.5%</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥3,258</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">智能手机、笔记本电脑、智能家居</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">4.8次/年</div>
+                </td>
+              </tr>
+              
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
+                      <i class="fa fa-star"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">中等消费用户</div>
+                      <div class="text-sm text-gray-500">¥500-2000</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">42.8%</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥1,126</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">数码配件、小家电、时尚服饰</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">6.5次/年</div>
+                </td>
+              </tr>
+              
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                      <i class="fa fa-thumbs-up"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">低消费用户</div>
+                      <div class="text-sm text-gray-500">¥0-500</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">24.5%</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">¥289</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">日用品、美妆护肤、零食食品</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">12.3次/年</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+              <i class="fa fa-shopping-bag text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold">2025双11数据分析</h3>
+          </div>
+          <p class="text-gray-400 mb-4">全面解析双11购物节用户行为和消费趋势，为商家提供数据驱动的决策支持。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-wechat text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-linkedin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-twitter text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#overview" class="text-gray-400 hover:text-white transition-colors">概览</a></li>
+            <li><a href="#top-products" class="text-gray-400 hover:text-white transition-colors">热门商品</a></li>
+            <li><a href="#price-distribution" class="text-gray-400 hover:text-white transition-colors">价格分布</a></li>
+            <li><a href="#purchase-trends" class="text-gray-400 hover:text-white transition-colors">购买趋势</a></li>
+            <li><a href="#user-demographics" class="text-gray-400 hover:text-white transition-colors">用户分析</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">相关资源</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">完整报告下载</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">数据API接口</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">商家案例分析</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">营销攻略指南</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">历年数据对比</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">联系我们</h4>
+          <ul class="space-y-2">
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-envelope-o mr-2"></i>
+              <span>contact@dataanalysis.com</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-phone mr-2"></i>
+              <span>400-123-4567</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-map-marker mr-2"></i>
+              <span>北京市朝阳区数据大厦15层</span>
+            </li>
+          </ul>
+          
+          <div class="mt-4">
+            <h4 class="text-lg font-semibold mb-2">订阅更新</h4>
+            <div class="flex">
+              <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-dark">
+              <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg transition-colors">
+                订阅
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2026 双11数据分析报告. 保留所有权利.</p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">隐私政策</a>
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">使用条款</a>
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookie政策</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('py-2');
+        navbar.classList.remove('py-4');
+        navbar.classList.add('shadow-lg');
+      } else {
+        navbar.classList.add('py-4');
+        navbar.classList.remove('py-2');
+        navbar.classList.remove('shadow-lg');
+      }
+    });
+    
+    // 移动端菜单
+    const menuButton = document.querySelector('button.md\\:hidden');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = document.getElementById('close-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+    
+    menuButton.addEventListener('click', function() {
+      mobileMenu.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    });
+    
+    closeMenu.addEventListener('click', function() {
+      mobileMenu.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    });
+    
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      });
+    });
+    
+    // 图表初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 销售趋势图
+      const salesTrendCtx = document.getElementById('sales-trend-chart').getContext('2d');
+      const salesTrendChart = new Chart(salesTrendCtx, {
+        type: 'line',
+        data: {
+          labels: ['10月20日', '10月25日', '10月30日', '11月1日', '11月5日', '11月10日', '11月11日'],
+          datasets: [
+            {
+              label: '2025年销售额',
+              data: [28, 45, 65, 80, 92, 110, 125],
+              borderColor: '#FF4D4F',
+              backgroundColor: 'rgba(255, 77, 79, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: '2024年销售额',
+              data: [22, 35, 50, 62, 75, 90, 105],
+              borderColor: '#1890FF',
+              backgroundColor: 'rgba(24, 144, 255, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '销售额 (亿元)'
+              }
+            }
+          }
+        }
+      });
+      
+      // 价格区间分布图
+      const priceRangeCtx = document.getElementById('price-range-chart').getContext('2d');
+      const priceRangeChart = new Chart(priceRangeCtx, {
+        type: 'bar',
+        data: {
+          labels: ['¥0-500', '¥500-1000', '¥1000-2000', '¥2000-5000', '¥5000+'],
+          datasets: [
+            {
+              label: '销量占比',
+              data: [38.5, 24.2, 18.1, 15.7, 3.5],
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
+                'rgba(255, 99, 132, 0.7)'
+              ],
+              borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '销量占比 (%)'
+              }
+            }
+          }
+        }
+      });
+      
+      // 品类价格图
+      const categoryPriceCtx = document.getElementById('category-price-chart').getContext('2d');
+      const categoryPriceChart = new Chart(categoryPriceCtx, {
+        type: 'horizontalBar',
+        data: {
+          labels: ['电子产品', '家用电器', '时尚服饰', '美妆护肤', '食品生鲜', '家居用品', '运动户外'],
+          datasets: [
+            {
+              label: '平均价格 (元)',
+              data: [3250, 2180, 890, 450, 180, 650, 1250],
+              backgroundColor: 'rgba(255, 77, 79, 0.7)',
+              borderColor: 'rgba(255, 77, 79, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '平均价格 (元)'
+              }
+            }
+          }
+        }
+      });
+      
+      // 购买时间分布图
+      const purchaseTimeCtx = document.getElementById('purchase-time-chart').getContext('2d');
+      const purchaseTimeChart = new Chart(purchaseTimeCtx, {
+        type: 'line',
+        data: {
+          labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+          datasets: [
+            {
+              label: '订单量',
+              data: [85, 45, 30, 40, 60, 75, 80, 85, 90, 100, 95, 65],
+              borderColor: '#FF4D4F',
+              backgroundColor: 'rgba(255, 77, 79, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '相对订单量'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: '时间'
+              }
+            }
+          }
+        }
+      });
+      
+      // 设备分布图
+      const deviceDistributionCtx = document.getElementById('device-distribution-chart').getContext('2d');
+      const deviceDistributionChart = new Chart(deviceDistributionCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['手机', '电脑', '平板', '其他设备'],
+          datasets: [
+            {
+              data: [78.5, 15.2, 5.3, 1.0],
+              backgroundColor: [
+                'rgba(255, 77, 79, 0.7)',
+                'rgba(24, 144, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
+                'rgba(153, 102, 255, 0.7)'
+              ],
+              borderColor: [
+                'rgba(255, 77, 79, 1)',
+                'rgba(24, 144, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+      
+      // 支付方式图
+      const paymentMethodCtx = document.getElementById('payment-method-chart').getContext('2d');
+      const paymentMethodChart = new Chart(paymentMethodCtx, {
+        type: 'pie',
+        data: {
+          labels: ['移动支付', '信用卡', '借记卡', '货到付款', '其他'],
+          datasets: [
+            {
+              data: [82.3, 10.5, 6.2, 0.8, 0.2],
+              backgroundColor: [
+                'rgba(255, 77, 79, 0.7)',
+                'rgba(24, 144, 255, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
+                'rgba(153, 102, 255, 0.7)'
+              ],
+              borderColor: [
+                'rgba(255, 77, 79, 1)',
+                'rgba(24, 144, 255, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+      
+      // 年龄分布图
+      const ageDistributionCtx = document.getElementById('age-distribution-chart').getContext('2d');
+      const ageDistributionChart = new Chart(ageDistributionCtx, {
+        type: 'bar',
+        data: {
+          labels: ['18-24岁', '25-30岁', '31-40岁', '41-50岁', '50岁以上'],
+          datasets: [
+            {
+              label: '用户占比',
+              data: [25.3, 32.5, 24.8, 12.4, 5.0],
+              backgroundColor: 'rgba(24, 144, 255, 0.7)',
+              borderColor: 'rgba(24, 144, 255, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '用户占比 (%)'
+              }
+            }
+          }
+        }
+      });
+      
+      // 性别比例图
+      const genderRatioCtx = document.getElementById('gender-ratio-chart').getContext('2d');
+      const genderRatioChart = new Chart(genderRatioCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['女性', '男性'],
+          datasets: [
+            {
+              data: [58.2, 41.8],
+              backgroundColor: [
+                'rgba(255, 77, 79, 0.7)',
+                'rgba(24, 144, 255, 0.7)'
+              ],
+              borderColor: [
+                'rgba(255, 77, 79, 1)',
+                'rgba(24, 144, 255, 1)'
+              ],
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 过滤按钮交互
+    const filterButtons = document.querySelectorAll('.active-filter').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.active-filter').forEach(btn => {
+          btn.classList.remove('active-filter');
+          btn.classList.remove('bg-primary');
+          btn.classList.remove('text-white');
+          btn.classList.add('bg-white');
+          btn.classList.add('text-dark');
+        });
+        
+        this.classList.add('active-filter');
+        this.classList.remove('bg-white');
+        this.classList.remove('text-dark');
+        this.classList.add('bg-primary');
+        this.classList.add('text-white');
+      });
+    });
+  </script>
+</body>
+</html>
