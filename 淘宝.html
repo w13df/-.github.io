@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商商品展示平台</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 引入平台数据管理脚本 -->
+  <script src="platform.js" defer></script>
+  
+  <!-- 自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF4400',    // 天猫橙
+            secondary: '#E12F31',  // 京东红
+            tertiary: '#FF5C00',   // 淘宝橙
+            pinduoduo: '#E02020',  // 拼多多红
+            suning: '#0066CC',     // 苏宁蓝
+            dangdang: '#009900',   // 当当绿
+            vipshop: '#E6162D',    // 唯品会红
+            yanxuan: '#FF9900',    // 网易严选黄
+            neutral: {
+              100: '#F5F5F5',
+              200: '#EEEEEE',
+              300: '#E0E0E0',
+              400: '#BDBDBD',
+              500: '#9E9E9E',
+              600: '#757575',
+              700: '#616161',
+              800: '#424242',
+              900: '#212121',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .scale-95 {
+        transform: scale(0.95);
+      }
+      .scale-100 {
+        transform: scale(1);
+      }
+      .transition-transform {
+        transition: transform 0.2s ease-in-out;
+      }
+      .form-input-focus {
+        @apply focus:ring-2 focus:ring-primary/50 focus:border-primary;
+      }
+      .login-button {
+        @apply bg-primary text-white font-medium py-3 rounded-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-lg active:scale-98;
+      }
+      .animate-shake {
+        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      }
+      @keyframes shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-3px); }
+        40%, 60% { transform: translateX(3px); }
+      }
+      .content-auto {
+        content-visibility: auto;
+      }
+      .sidebar-item-active {
+        @apply bg-primary/10 text-primary border-l-4 border-primary;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .badge-new {
+        @apply absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full;
+      }
+      /* 视图切换样式 */
+      .grid-view {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+      }
+      .list-view {
+        @apply flex flex-col gap-4;
+      }
+      .list-card {
+        @apply flex flex-row h-auto;
+      }
+      .list-card .card-content {
+        @apply flex-1 p-4;
+      }
+      .list-card .card-image {
+        @apply w-40 h-40 shrink-0;
+      }
+      .list-card .card-title {
+        @apply text-lg font-medium mb-2 line-clamp-2;
+      }
+      .list-card .card-price {
+        @apply text-xl font-bold text-primary mt-2;
+      }
+      .list-card .card-btn {
+        @apply mt-2 opacity-100;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-neutral-100 min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-30">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-neutral-800">
+        <i class="fa fa-shopping-bag text-primary mr-2"></i>电商商品对比平台
+      </h1>
+      
+      <div class="flex items-center space-x-4">
+        <div class="relative hidden md:block">
+          <input type="text" placeholder="搜索商品..." class="pl-10 pr-4 py-2 rounded-full border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary w-64">
+          <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+        </div>
+        
+        <button class="p-2 rounded-full hover:bg-neutral-100 transition-colors relative">
+          <i class="fa fa-shopping-cart text-xl text-neutral-700"></i>
+          <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+        </button>
+        
+        <button id="login-btn" class="p-2 rounded-full hover:bg-neutral-100 transition-colors flex items-center">
+          <i class="fa fa-user text-xl text-neutral-700"></i>
+          <span id="login-text" class="ml-1 text-neutral-700" onclick="window.location.href='购物登录界面.html'" style="cursor: pointer;">登录</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-6">
+    <!-- 侧边栏 -->
+    <aside class="md:w-64 lg:w-72 shrink-0">
+      <div class="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
+        <!-- 侧边栏标题 -->
+        <div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 class="font-semibold text-lg text-neutral-800">选择电商平台</h2>
+        </div>
+        
+        <!-- 侧边栏选项 -->
+        <nav class="p-2">
+          <a href="#" class="sidebar-item-active flex items-center px-4 py-3 rounded-lg mb-1">
+            <i class="fa fa-shopping-bag w-6"></i>
+            <span>全部商品</span>
+          </a>
+          
+          <a href="tmall.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="tmall">
+            <i class="fa fa-shopping-bag w-6 text-primary"></i>
+            <span onclick="window.location.href='https://www.tmall.com'" style="cursor: pointer; color: #ff6700; text-decoration: underline;">天猫</span>
+          </a>
+          
+          <a href="jd.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="jd">
+            <i class="fa fa-shopping-cart w-6 text-secondary"></i>
+            <span onclick="window.location.href='https://www.jd.com'" style="cursor: pointer; color: #e1251b; text-decoration: underline;">京东</span>
+          </a>
+          
+          <a href="taobao.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="taobao">
+            <i class="fa fa-shopping-bag w-6 text-tertiary"></i>
+            <span onclick="window.location.href='https://www.taobao.com'" style="cursor: pointer; color: #ff4400; text-decoration: underline;">淘宝</span>
+          </a>
+          
+          <a href="pinduoduo.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="pinduoduo">
+            <i class="fa fa-shopping-bag w-6 text-pinduoduo"></i>
+            <span onclick="window.location.href='https://www.pinduoduo.com'" style="cursor: pointer; color: #E02020; text-decoration: underline;">拼多多</span>
+          </a>
+          
+          <a href="suning.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="suning">
+            <i class="fa fa-shopping-bag w-6 text-suning"></i>
+            <span onclick="window.location.href='https://www.suning.com'" style="cursor: pointer; color: #0066CC; text-decoration: underline;">苏宁易购</span>
+          </a>
+          
+          <a href="dangdang.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="dangdang">
+            <i class="fa fa-book w-6 text-dangdang"></i>
+            <span onclick="window.location.href='https://www.dangdang.com'" style="cursor: pointer; color: #009900; text-decoration: underline;">当当网</span>
+          </a>
+          
+          <a href="vipshop.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="vipshop">
+            <i class="fa fa-tag w-6 text-vipshop"></i>
+            <span onclick="window.location.href='https://www.vip.com'" style="cursor: pointer; color: #E6162D; text-decoration: underline;">唯品会</span>
+          </a>
+          
+          <a href="yanxuan.html" class="flex items-center px-4 py-3 rounded-lg mb-1 hover:bg-neutral-100 transition-colors" data-platform="yanxuan">
+            <i class="fa fa-certificate w-6 text-yanxuan"></i>
+            <span onclick="window.location.href='https://you.163.com'" style="cursor: pointer; color: #FF9900; text-decoration: underline;">网易严选</span>
+          </a>
+        </nav>
+        
+        <!-- 价格筛选 -->
+        <div class="px-6 py-4 border-t border-neutral-200">
+          <h3 class="font-medium text-neutral-800 mb-3">价格范围</h3>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="min-price" placeholder="最低" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <span class="text-neutral-400">-</span>
+            <input type="number" id="max-price" placeholder="最高" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+          </div>
+          <button id="price-filter-btn" class="mt-3 w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
+            筛选
+          </button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- 商品内容区 -->
+    <div class="flex-grow">
+      <!-- 筛选栏 -->
+      <div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-4 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <button id="grid-view-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors" onclick="switchToGridView()">
+              <i class="fa fa-th-large mr-1"></i> 网格视图
+            </button>
+            <button id="list-view-btn" class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors" onclick="switchToListView()">
+              <i class="fa fa-list mr-1"></i> 列表视图
+            </button>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <label for="sort" class="text-neutral-600">排序方式:</label>
+            <select id="sort" class="px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white">
+              <option value="default">综合排序</option>
+              <option value="price_asc">价格从低到高</option>
+              <option value="price_desc">价格从高到低</option>
+              <option value="sales">销量优先</option>
+              <option value="rating">好评优先</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 商品网格 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- 商品卡片 1 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="tmall" data-price="5999" data-sales="328" data-rating="4.8">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product1/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">新品</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded">天猫</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.8</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">高性能笔记本电脑 轻薄便携商务本 学生游戏本</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-primary">¥5,999</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥6,999</span>
+              <span class="ml-auto text-xs text-neutral-500">328人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors" onclick="window.location.href='https://uland.taobao.com/sem/tbsearch?bc_fl_src=tbsite_T9W2LtnM&channelSrp=bingSomama&clk1=8a379e2327a5a595d7dfc3618a3e1c49&commend=all&ie=utf8&initiative_id=tbindexz_20170306&keyword=%E9%AB%98%E6%80%A7%E8%83%BD%E7%AC%94%E8%AE%B0%E6%9C%AC%E7%94%B5%E8%84%91%20%E8%BD%BB%E8%96%84%E4%BE%BF%E6%90%BA%E5%95%86%E5%8A%A1%E6%9C%AC%20%E5%AD%A6%E7%94%9F%E6%B8%B8%E6%88%8F%E6%9C%AC&localImgKey=&msclkid=43badd1246f11dc9ee55b436c13d7f2e&page=1&preLoadOrigin=https%3A%2F%2Fwww.tmall.com&q=%E9%AB%98%E6%80%A7%E8%83%BD%E7%AC%94%E8%AE%B0%E6%9C%AC%E7%94%B5%E8%84%91%20%E8%BD%BB%E8%96%84%E4%BE%BF%E6%90%BA%E5%95%86%E5%8A%A1%E6%9C%AC%20%E5%AD%A6%E7%94%9F%E6%B8%B8%E6%88%8F%E6%9C%AC&refpid=mm_2898300158_3078300397_115665800437&search_type=item&sourceId=tb.index&spm=tbpc.31171857%2Fa.search_paste.0&ssid=s5-e&tab=mall'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+                </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 商品卡片 2 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="jd" data-price="3299" data-sales="12000" data-rating="4.7">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product2/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded">京东</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.7</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">智能手机 5G全网通 拍照游戏手机 超大存储</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-secondary">¥3,299</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥3,499</span>
+              <span class="ml-auto text-xs text-neutral-500">1.2万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-secondary text-white py-2 rounded-lg hover:bg-secondary/90 transition-colors" onclick="window.location.href='https://uland.taobao.com/sem/tbsearch?bc_fl_src=tbsite_T9W2LtnM&channelSrp=bingSomama&clk1=8a379e2327a5a595d7dfc3618a3e1c49&commend=all&ie=utf8&initiative_id=tbindexz_20170306&keyword=%E6%99%BA%E8%83%BD%E6%89%8B%E6%9C%BA%205G%E5%85%A8%E7%BD%91%E9%80%9A%20%E6%8B%8D%E7%85%A7%E6%B8%B8%E6%88%8F%E6%89%8B%E6%9C%BA%20%E8%B6%85%E5%A4%A7%E5%AD%98%E5%82%A8&localImgKey=&msclkid=43badd1246f11dc9ee55b436c13d7f2e&page=1&preLoadOrigin=https%3A%2F%2Fwww.tmall.com&q=%E6%99%BA%E8%83%BD%E6%89%8B%E6%9C%BA%205G%E5%85%A8%E7%BD%91%E9%80%9A%20%E6%8B%8D%E7%85%A7%E6%B8%B8%E6%88%8F%E6%89%8B%E6%9C%BA%20%E8%B6%85%E5%A4%A7%E5%AD%98%E5%82%A8&refpid=mm_2898300158_3078300397_115665800437&search_type=item&sourceId=tb.index&spm=tbpc.31171857%2Fa.search_paste.0&ssid=s5-e&tab=mall'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 商品卡片 3 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="taobao" data-price="199" data-sales="56000" data-rating="4.9">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product3/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">热销</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-tertiary/10 text-tertiary px-2 py-1 rounded">淘宝</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.9</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">无线蓝牙耳机 高音质降噪耳机 运动跑步入耳式耳塞</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-tertiary">¥199</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥299</span>
+              <span class="ml-auto text-xs text-neutral-500">5.6万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-tertiary text-white py-2 rounded-lg hover:bg-tertiary/90 transition-colors" onclick="window.location.href='https://uland.taobao.com/sem/tbsearch?bc_fl_src=tbsite_T9W2LtnM&channelSrp=bingSomama&clk1=8a379e2327a5a595d7dfc3618a3e1c49&commend=all&ie=utf8&initiative_id=tbindexz_20170306&keyword=%E6%97%A0%E7%BA%BF%E8%93%9D%E7%89%99%E8%80%B3%E6%9C%BA%20%E9%AB%98%E9%9F%B3%E8%B4%A8%E9%99%8D%E5%99%AA%E8%80%B3%E6%9C%BA%20%E8%BF%90%E5%8A%A8%E8%B7%91%E6%AD%A5%E5%85%A5%E8%80%B3%E5%BC%8F%E8%80%B3%E5%A1%9E&localImgKey=&msclkid=43badd1246f11dc9ee55b436c13d7f2e&page=1&preLoadOrigin=https%3A%2F%2Fwww.tmall.com&q=%E6%97%A0%E7%BA%BF%E8%93%9D%E7%89%99%E8%80%B3%E6%9C%BA%20%E9%AB%98%E9%9F%B3%E8%B4%A8%E9%99%8D%E5%99%AA%E8%80%B3%E6%9C%BA%20%E8%BF%90%E5%8A%A8%E8%B7%91%E6%AD%A5%E5%85%A5%E8%80%B3%E5%BC%8F%E8%80%B3%E5%A1%9E&refpid=mm_2898300158_3078300397_115665800437&search_type=item&sourceId=tb.index&spm=tbpc.31171857%2Fa.search_paste.0&ssid=s5-e&tab=mall'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 商品卡片 4 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="tmall" data-price="499" data-sales="892" data-rating="4.6">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product4/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded">天猫</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.6</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">智能手表 心率监测运动手表 多功能电子表</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-primary">¥499</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥599</span>
+              <span class="ml-auto text-xs text-neutral-500">892人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors" onclick="window.location.href='https://uland.taobao.com/sem/tbsearch?bc_fl_src=tbsite_T9W2LtnM&channelSrp=bingSomama&clk1=8a379e2327a5a595d7dfc3618a3e1c49&commend=all&ie=utf8&initiative_id=tbindexz_20170306&keyword=%E6%99%BA%E8%83%BD%E6%89%8B%E8%A1%A8%20%E5%BF%83%E7%8E%87%E7%9B%91%E6%B5%8B%E8%BF%90%E5%8A%A8%E6%89%8B%E8%A1%A8%20%E5%A4%9A%E5%8A%9F%E8%83%BD%E7%94%B5%E5%AD%90%E8%A1%A8&localImgKey=&msclkid=43badd1246f11dc9ee55b436c13d7f2e&page=1&preLoadOrigin=https%3A%2F%2Fwww.tmall.com&q=%E6%99%BA%E8%83%BD%E6%89%8B%E8%A1%A8%20%E5%BF%83%E7%8E%87%E7%9B%91%E6%B5%8B%E8%BF%90%E5%8A%A8%E6%89%8B%E8%A1%A8%20%E5%A4%9A%E5%8A%9F%E8%83%BD%E7%94%B5%E5%AD%90%E8%A1%A8&refpid=mm_2898300158_3078300397_115665800437&search_type=item&sourceId=tb.index&spm=tbpc.31171857%2Fa.search_paste.0&ssid=s5-e&tab=mall'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 商品卡片 5 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="jd" data-price="2199" data-sales="15000" data-rating="4.7">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product5/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">新品</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded">京东</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.7</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">平板电脑 2K高清屏 学习娱乐二合一平板</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-secondary">¥2,199</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥2,399</span>
+              <span class="ml-auto text-xs text-neutral-500">1.5万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-secondary text-white py-2 rounded-lg hover:bg-secondary/90 transition-colors" onclick="window.location.href='https://re.jd.com/search?keyword=%E5%B9%B3%E6%9D%BF%E7%94%B5%E8%84%91%202K%E9%AB%98%E6%B8%85%E5%B1%8F%20%E5%AD%A6%E4%B9%A0%E5%A8%B1%E4%B9%90%E4%BA%8C%E5%90%88%E4%B8%80%E5%B9%B3%E6%9D%BF&enc=utf-8'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 商品卡片 6 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="taobao" data-price="129" data-sales="32000" data-rating="4.8">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/product6/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-tertiary/10 text-tertiary px-2 py-1 rounded">淘宝</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.8</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">时尚连衣裙 夏季新款女装 气质显瘦长裙</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-tertiary">¥129</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥199</span>
+              <span class="ml-auto text-xs text-neutral-500">3.2万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-tertiary text-white py-2 rounded-lg hover:bg-tertiary/90 transition-colors" onclick="window.location.href='https://www.taobao.com'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 商品卡片 7 - 天猫 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="tmall">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/tmall-new1/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">限量</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded">天猫</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.9</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">高端化妆品套装 保湿补水护肤礼盒 送礼佳品</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-primary">¥899</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥1,299</span>
+              <span class="ml-auto text-xs text-neutral-500">1.8万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors" onclick="window.location.href='https://www.tmall.com'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 商品卡片 8 - 京东 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="jd">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/jd-new1/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">爆款</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded">京东</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.8</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">智能扫地机器人 全自动清扫 激光导航 大容量</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-secondary">¥2,499</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥2,999</span>
+              <span class="ml-auto text-xs text-neutral-500">8,500+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-secondary text-white py-2 rounded-lg hover:bg-secondary/90 transition-colors" onclick="window.location.href='https://www.jd.com'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 商品卡片 9 - 淘宝 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" data-platform="taobao">
+          <div class="relative">
+            <img src="https://picsum.photos/seed/taobao-new1/400/400" alt="商品图片" class="w-full aspect-square object-cover">
+            <span class="badge-new">热卖</span>
+            <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              <i class="fa fa-heart-o text-neutral-600"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center mb-2">
+              <span class="text-xs bg-tertiary/10 text-tertiary px-2 py-1 rounded">淘宝</span>
+              <div class="ml-auto flex">
+                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                <span class="text-xs text-neutral-500 ml-1">4.7</span>
+              </div>
+            </div>
+            <h3 class="font-medium text-neutral-800 mb-2 line-clamp-2">家用投影仪 高清1080P 自动对焦 家庭影院首选</h3>
+            <div class="flex items-baseline mb-3">
+              <span class="text-xl font-bold text-tertiary">¥1,299</span>
+              <span class="text-sm text-neutral-400 line-through ml-2">¥1,899</span>
+              <span class="ml-auto text-xs text-neutral-500">4.2万+人已购</span>
+            </div>
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-tertiary text-white py-2 rounded-lg hover:bg-tertiary/90 transition-colors" onclick="window.location.href='https://www.taobao.com'">
+                <i class="fa fa-shopping-cart mr-1"></i> 查看详细
+              </button>
+              <button class="p-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-1">
+          <a href="#" class="px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors">
+            <i class="fa fa-angle-left"></i>
+          </a>
+          <a href="#" class="px-4 py-2 rounded-lg bg-primary text-white">1</a>
+          <a href="#" class="px-4 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors">2</a>
+          <a href="#" class="px-4 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors">3</a>
+          <span class="px-4 py-2 text-neutral-400">...</span>
+          <a href="#" class="px-4 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors">10</a>
+          <a href="#" class="px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors">
+            <i class="fa fa-angle-right"></i>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-neutral-200 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="font-bold text-lg text-neutral-800 mb-4">关于我们</h3>
+          <ul class="space-y-2 text-neutral-600">
+            <li><a href="#" class="hover:text-primary transition-colors">公司简介</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">联系我们</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">加入我们</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">隐私政策</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="font-bold text-lg text-neutral-800 mb-4">客户服务</h3>
+          <ul class="space-y-2 text-neutral-600">
+            <li><a href="#" class="hover:text-primary transition-colors">帮助中心</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">订单查询</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">售后服务</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">投诉建议</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="font-bold text-lg text-neutral-800 mb-4">支付方式</h3>
+          <ul class="space-y-2 text-neutral-600">
+            <li><a href="#" class="hover:text-primary transition-colors">支付宝</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">微信支付</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">银行卡支付</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">货到付款</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="font-bold text-lg text-neutral-800 mb-4">关注我们</h3>
+          <div class="flex space-x-4 mb-4">
+            <a href="#" class="w-10 h-10 rounded-full bg-[#1DA1F2] flex items-center justify-center text-white hover:bg-[#1DA1F2]/90 transition-colors">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#E4405F] flex items-center justify-center text-white hover:bg-[#E4405F]/90 transition-colors">
+              <i class="fa fa-instagram"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center text-white hover:bg-[#25D366]/90 transition-colors">
+              <i class="fa fa-whatsapp"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center text-white hover:bg-[#0A66C2]/90 transition-colors">
+              <i class="fa fa-linkedin"></i>
+            </a>
+          </div>
+          <p class="text-neutral-600">订阅我们的新闻邮件</p>
+          <div class="mt-2 flex">
+            <input type="email" placeholder="您的邮箱地址" class="flex-1 px-3 py-2 border border-neutral-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <button class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+              订阅
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-8 pt-8 border-t border-neutral-200 text-center text-neutral-500 text-sm">
+        <p>© 2025 电商商品对比平台. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 平台筛选功能和视图切换
+    document.addEventListener('DOMContentLoaded', function() {
+      const platformLinks = document.querySelectorAll('[data-platform]');
+      const productCards = document.querySelectorAll('[data-platform]');
+      // 给商品网格容器添加ID，方便选择
+        const productsContainer = document.querySelector('.flex-grow');
+        const productsGrid = productsContainer.querySelector('div.grid:nth-child(2)');
+      const gridViewBtn = document.getElementById('grid-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+        const sortSelect = document.getElementById('sort');
+        
+        // 排序下拉框change事件监听
+        sortSelect.addEventListener('change', function() {
+          const sortMethod = this.value;
+          sortProducts(sortMethod);
+        });
+        
+        // 商品排序函数
+        function sortProducts(sortMethod) {
+          const productsContainer = document.querySelector('.flex-grow');
+          const productsGrid = productsContainer.querySelector('div.grid:nth-child(2)');
+          
+          if (!productsGrid) return;
+          
+          const productCards = Array.from(productsGrid.children);
+          let sortedCards = [...productCards];
+          
+          switch(sortMethod) {
+            case 'price_asc':
+              // 价格从低到高
+              sortedCards.sort((a, b) => {
+                // 优先使用数据属性
+                const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+                const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                return priceA - priceB;
+              });
+              break;
+            case 'price_desc':
+              // 价格从高到低
+              sortedCards.sort((a, b) => {
+                // 优先使用数据属性
+                const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+                const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                return priceB - priceA;
+              });
+              break;
+            case 'sales':
+              // 销量优先
+              sortedCards.sort((a, b) => {
+                // 优先使用数据属性
+                const salesA = parseInt(a.getAttribute('data-sales')) || 0;
+                const salesB = parseInt(b.getAttribute('data-sales')) || 0;
+                return salesB - salesA;
+              });
+              break;
+            case 'rating':
+              // 好评优先
+              sortedCards.sort((a, b) => {
+                // 优先使用数据属性
+                const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
+                const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+                return ratingB - ratingA;
+              });
+              break;
+            case 'default':
+            default:
+              // 综合排序（默认排序）
+              break;
+          }
+          
+          // 重新排列DOM中的商品卡片
+          sortedCards.forEach(card => {
+            productsGrid.appendChild(card);
+          });
+        }
+      
+      // 切换到网格视图
+      window.switchToGridView = function() {
+        // 更新按钮样式
+        gridViewBtn.classList.remove('bg-white', 'border', 'border-neutral-300');
+        gridViewBtn.classList.add('bg-primary', 'text-white');
+        listViewBtn.classList.remove('bg-primary', 'text-white');
+        listViewBtn.classList.add('bg-white', 'border', 'border-neutral-300');
+        
+        // 更新商品网格布局
+        if (productsGrid) {
+          productsGrid.classList.remove('list-view');
+          productsGrid.classList.add('grid-view');
+          
+          // 恢复商品卡片默认样式
+          productCards.forEach(card => {
+            card.classList.remove('list-card');
+          });
+        }
+      };
+      
+      // 页面加载时初始化网格视图
+      window.switchToGridView();
+      
+      // 切换到列表视图
+      window.switchToListView = function() {
+        // 更新按钮样式
+        listViewBtn.classList.remove('bg-white', 'border', 'border-neutral-300');
+        listViewBtn.classList.add('bg-primary', 'text-white');
+        gridViewBtn.classList.remove('bg-primary', 'text-white');
+        gridViewBtn.classList.add('bg-white', 'border', 'border-neutral-300');
+        
+        // 更新商品网格布局
+        if (productsGrid) {
+          productsGrid.classList.remove('grid-view');
+          productsGrid.classList.add('list-view');
+          
+          // 应用列表视图商品卡片样式
+          productCards.forEach(card => {
+            card.classList.add('list-card');
+          });
+        }
+      };
+      
+      platformLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // 移除所有侧边栏项的活跃状态
+          document.querySelectorAll('.sidebar-item-active').forEach(item => {
+            item.classList.remove('sidebar-item-active');
+            item.classList.add('hover:bg-neutral-100');
+          });
+          
+          // 添加当前项的活跃状态
+          this.classList.add('sidebar-item-active');
+          this.classList.remove('hover:bg-neutral-100');
+          
+          const platform = this.getAttribute('data-platform');
+          
+          // 筛选商品
+          productCards.forEach(card => {
+            if (platform === card.getAttribute('data-platform')) {
+              card.style.display = 'block';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+      
+      // 全部商品按钮
+      document.querySelector('a[href="#"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // 恢复所有商品显示
+        productCards.forEach(card => {
+          card.style.display = 'block';
+        });
+      });
+      
+      // 商品卡片悬停效果增强
+      productCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.querySelector('button').classList.add('opacity-100');
+          this.querySelector('button').classList.remove('opacity-0');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.querySelector('button').classList.remove('opacity-100');
+          this.querySelector('button').classList.add('opacity-0');
+        });
+      });
+    });
+    
+    // 登录功能实现
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginModal = document.getElementById('login-modal');
+      const loginBtn = document.getElementById('login-btn');
+      const closeLoginBtn = document.getElementById('close-login-btn');
+      const loginForm = document.getElementById('login-form');
+      const togglePasswordBtn = document.getElementById('toggle-password');
+      const passwordInput = document.getElementById('password');
+      const usernameInput = document.getElementById('username');
+      const usernameError = document.getElementById('username-error');
+      const passwordError = document.getElementById('password-error');
+      
+      // 打开登录模态框
+      loginBtn.addEventListener('click', function() {
+        loginModal.classList.remove('hidden');
+        // 添加动画效果
+        setTimeout(() => {
+          loginModal.querySelector('div').classList.add('scale-100');
+          loginModal.querySelector('div').classList.remove('scale-95');
+        }, 10);
+      });
+      
+      // 关闭登录模态框
+      function closeModal() {
+        loginModal.querySelector('div').classList.remove('scale-100');
+        loginModal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+          // 重置表单
+          loginForm.reset();
+          hideErrors();
+          // 移除所有临时状态类
+          usernameInput.classList.remove('border-green-500', 'border-red-500');
+          passwordInput.classList.remove('border-green-500', 'border-red-500');
+          // 确保密码可见性恢复到默认状态
+          passwordInput.setAttribute('type', 'password');
+          const icon = togglePasswordBtn.querySelector('i');
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        }, 200);
+      }
+      
+      // 键盘导航支持
+      loginModal.addEventListener('keydown', function(e) {
+        // Tab键循环聚焦
+        if (e.key === 'Tab') {
+          const inputs = loginForm.querySelectorAll('input, button');
+          const firstInput = inputs[0];
+          const lastInput = inputs[inputs.length - 1];
+          
+          if (e.shiftKey && document.activeElement === firstInput) {
+            e.preventDefault();
+            lastInput.focus();
+          } else if (!e.shiftKey && document.activeElement === lastInput) {
+            e.preventDefault();
+            firstInput.focus();
+          }
+        }
+      });
+      
+      // 为忘记密码和注册链接添加点击事件（模拟）
+      document.querySelector('a[href="#"].text-primary:last-child').addEventListener('click', function(e) {
+        e.preventDefault();
+        showNotification('注册功能即将上线，敬请期待！', 'info');
+      });
+      
+      document.querySelector('a[href="#"].text-primary:first-child').addEventListener('click', function(e) {
+        e.preventDefault();
+        showNotification('请联系管理员重置密码！', 'info');
+      });
+      
+      // 点击关闭按钮关闭模态框
+      closeLoginBtn.addEventListener('click', closeModal);
+      
+      // 点击模态框背景关闭模态框
+      loginModal.addEventListener('click', function(e) {
+        if (e.target === loginModal) {
+          closeModal();
+        }
+      });
+      
+      // 按ESC键关闭模态框
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !loginModal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+      
+      // 切换密码可见性
+      togglePasswordBtn.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        // 切换图标
+        const icon = this.querySelector('i');
+        if (type === 'password') {
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+      
+      // 隐藏错误提示
+      function hideErrors() {
+        usernameError.classList.add('hidden');
+        passwordError.classList.add('hidden');
+        usernameInput.classList.remove('border-red-500');
+        passwordInput.classList.remove('border-red-500');
+      }
+      
+      // 防抖函数
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+      
+      // 验证账号
+      function validateUsername() {
+        const value = usernameInput.value.trim();
+        
+        // 添加动画效果
+        usernameInput.classList.add('animate-shake');
+        setTimeout(() => {
+          usernameInput.classList.remove('animate-shake');
+        }, 500);
+        
+        if (value === '') {
+          usernameError.textContent = '请输入账号';
+          usernameError.classList.remove('hidden');
+          usernameInput.classList.add('border-red-500');
+          return false;
+        } else if (value.length < 3) {
+          usernameError.textContent = '账号长度至少为3个字符';
+          usernameError.classList.remove('hidden');
+          usernameInput.classList.add('border-red-500');
+          return false;
+        } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(value)) {
+          usernameError.textContent = '账号只能包含字母、数字、下划线和中文';
+          usernameError.classList.remove('hidden');
+          usernameInput.classList.add('border-red-500');
+          return false;
+        } else {
+          usernameError.classList.add('hidden');
+          usernameInput.classList.remove('border-red-500');
+          // 添加成功状态样式
+          usernameInput.classList.add('border-green-500');
+          setTimeout(() => {
+            usernameInput.classList.remove('border-green-500');
+          }, 1000);
+          return true;
+        }
+      }
+      
+      // 验证密码
+      function validatePassword() {
+        const value = passwordInput.value.trim();
+        
+        // 添加动画效果
+        passwordInput.classList.add('animate-shake');
+        setTimeout(() => {
+          passwordInput.classList.remove('animate-shake');
+        }, 500);
+        
+        if (value === '') {
+          passwordError.textContent = '请输入密码';
+          passwordError.classList.remove('hidden');
+          passwordInput.classList.add('border-red-500');
+          return false;
+        } else if (value.length < 6) {
+          passwordError.textContent = '密码长度至少为6个字符';
+          passwordError.classList.remove('hidden');
+          passwordInput.classList.add('border-red-500');
+          return false;
+        } else {
+          passwordError.classList.add('hidden');
+          passwordInput.classList.remove('border-red-500');
+          // 添加成功状态样式
+          passwordInput.classList.add('border-green-500');
+          setTimeout(() => {
+            passwordInput.classList.remove('border-green-500');
+          }, 1000);
+          return true;
+        }
+      }
+      
+      // 创建防抖验证函数
+      const debouncedValidateUsername = debounce(validateUsername, 300);
+      const debouncedValidatePassword = debounce(validatePassword, 300);
+      
+      // 输入时验证 - 使用防抖
+      usernameInput.addEventListener('input', function() {
+        // 实时隐藏错误提示，避免频繁显示
+        if (!usernameError.classList.contains('hidden')) {
+          usernameError.classList.add('hidden');
+          usernameInput.classList.remove('border-red-500');
+        }
+        debouncedValidateUsername();
+      });
+      
+      passwordInput.addEventListener('input', function() {
+        // 实时隐藏错误提示，避免频繁显示
+        if (!passwordError.classList.contains('hidden')) {
+          passwordError.classList.add('hidden');
+          passwordInput.classList.remove('border-red-500');
+        }
+        debouncedValidatePassword();
+      });
+      
+      // 失焦时进行完整验证
+      usernameInput.addEventListener('blur', validateUsername);
+      passwordInput.addEventListener('blur', validatePassword);
+      
+      // 表单提交处理
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // 执行验证
+        const isUsernameValid = validateUsername();
+        const isPasswordValid = validatePassword();
+        
+        if (isUsernameValid && isPasswordValid) {
+          // 模拟登录中状态
+          const submitButton = this.querySelector('button[type="submit"]');
+          const loginText = document.getElementById('login-text');
+          const loginLoading = document.getElementById('login-loading');
+          
+          loginText.classList.add('hidden');
+          loginLoading.classList.remove('hidden');
+          submitButton.disabled = true;
+          
+          // 模拟网络请求延迟
+          setTimeout(() => {
+            // 模拟登录成功
+            const username = usernameInput.value.trim();
+            const isRememberMe = document.getElementById('remember-me').checked;
+            
+            // 如果勾选了记住我，可以将信息存储在localStorage
+            if (isRememberMe) {
+              localStorage.setItem('username', username);
+            } else {
+              localStorage.removeItem('username');
+            }
+            
+            // 存储用户会话信息
+            sessionStorage.setItem('currentUser', JSON.stringify({
+              username: username,
+              loginTime: new Date().toISOString(),
+              isAuthenticated: true
+            }));
+            
+            // 使用自定义提示替代alert
+            showNotification(`登录成功！欢迎回来，${username}！`, 'success');
+            
+            // 更新用户状态显示
+            updateUserStatus(true);
+            
+            // 关闭模态框
+            setTimeout(closeModal, 1000);
+            
+            // 这里可以添加实际的登录逻辑，比如发送请求到服务器
+            console.log('登录信息:', {
+              username: username,
+              password: passwordInput.value,
+              rememberMe: isRememberMe
+            });
+            
+            // 恢复按钮状态
+            loginText.classList.remove('hidden');
+            loginLoading.classList.add('hidden');
+            submitButton.disabled = false;
+          }, 1500);
+        }
+      });
+      
+      // 更新用户登录状态显示
+      function updateUserStatus(isLoggedIn) {
+        // 直接使用之前定义的loginBtn变量
+        if (loginBtn) {
+          if (isLoggedIn) {
+            // 登录成功后可以修改用户按钮显示，比如显示用户名
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser) {
+              // 这里只是示例，具体样式可以根据页面设计调整
+              loginBtn.innerHTML = `\u003ci class="fa fa-user-circle mr-1"\u003e\u003c/i\u003e\n              \u003cspan id="login-text" class="ml-1 text-neutral-700"\u003e${currentUser.username}\u003c/span\u003e`;
+              
+              // 可以添加用户下拉菜单或其他用户信息显示
+              // 由于这是模拟环境，我们只做简单修改
+              loginBtn.title = `已登录: ${currentUser.username}`;
+            }
+          } else {
+            // 登出状态
+            loginBtn.innerHTML = '\u003ci class="fa fa-user"\u003e\u003c/i\u003e\n            \u003cspan id="login-text" class="ml-1 text-neutral-700" onclick="window.location.href=\'淘宝.html\'" style="cursor: pointer;"\u003e登录\u003c/span\u003e';
+            loginBtn.title = '登录';
+          }
+        }
+      }
+      
+      // 页面加载时检查用户登录状态
+      function checkLoginStatus() {
+        const currentUser = sessionStorage.getItem('currentUser');
+        if (currentUser) {
+          updateUserStatus(true);
+        }
+      }
+      
+      // 初始化时检查登录状态
+      checkLoginStatus();
+      
+      // 自定义通知函数
+      function showNotification(message, type = 'info') {
+        // 检查是否已有通知，有则移除
+        const existingNotification = document.getElementById('custom-notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+        
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.id = 'custom-notification';
+        notification.className = `fixed top-5 right-5 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 ease-in-out translate-x-full opacity-0 z-50 flex items-center`;
+        
+        // 设置样式和内容
+        if (type === 'success') {
+          notification.classList.add('bg-green-50', 'border-l-4', 'border-green-500', 'text-green-700');
+          notification.innerHTML = `<i class="fa fa-check-circle mr-2"></i>${message}`;
+        } else if (type === 'error') {
+          notification.classList.add('bg-red-50', 'border-l-4', 'border-red-500', 'text-red-700');
+          notification.innerHTML = `<i class="fa fa-exclamation-circle mr-2"></i>${message}`;
+        } else {
+          notification.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500', 'text-blue-700');
+          notification.innerHTML = `<i class="fa fa-info-circle mr-2"></i>${message}`;
+        }
+        
+        // 添加到页面
+        document.body.appendChild(notification);
+        
+        // 显示动画
+        setTimeout(() => {
+          notification.classList.remove('translate-x-full', 'opacity-0');
+          notification.classList.add('translate-x-0', 'opacity-100');
+        }, 10);
+        
+        // 自动关闭
+        setTimeout(() => {
+          notification.classList.remove('translate-x-0', 'opacity-100');
+          notification.classList.add('translate-x-full', 'opacity-0');
+          setTimeout(() => {
+            notification.remove();
+          }, 500);
+        }, 3000);
+      }
+      
+      // 页面加载时，如果有记住的用户名，自动填充
+      const savedUsername = localStorage.getItem('username');
+      if (savedUsername) {
+        usernameInput.value = savedUsername;
+        document.getElementById('remember-me').checked = true;
+      }
+    });
+  </script>
+  
+  <!-- 登录模态框 -->
+  <div id="login-modal" class="fixed inset-0 bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity duration-300">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden scale-95 transition-transform duration-300">
+      <!-- 模态框头部 -->
+      <div class="flex justify-between items-center px-6 py-4 border-b border-neutral-200">
+        <h3 class="text-xl font-semibold text-neutral-800">用户登录</h3>
+        <button id="close-login-btn" class="text-neutral-500 hover:text-neutral-800 transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      <!-- 登录表单 -->
+      <div class="p-6">
+        <form id="login-form" class="space-y-4" autocomplete="on">
+          <!-- 账号输入 -->
+          <div>
+            <label for="username" class="block text-sm font-medium text-neutral-700 mb-1">账号</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
+                <i class="fa fa-user"></i>
+              </span>
+              <input type="text" id="username" name="username" placeholder="请输入账号" 
+                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-neutral-300 focus:outline-none form-input-focus transition-all duration-200" 
+                     autocomplete="username" required>
+              <p id="username-error" class="text-red-500 text-xs mt-1 hidden">请输入账号</p>
+            </div>
+          </div>
+          <!-- 密码输入 -->
+          <div>
+            <label for="password" class="block text-sm font-medium text-neutral-700 mb-1">密码</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
+                <i class="fa fa-lock"></i>
+              </span>
+              <input type="password" id="password" name="password" placeholder="请输入密码" 
+                     class="w-full pl-10 pr-10 py-3 rounded-lg border border-neutral-300 focus:outline-none form-input-focus transition-all duration-200" 
+                     autocomplete="current-password" required>
+              <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-primary transition-colors duration-200">
+                <i class="fa fa-eye-slash"></i>
+              </button>
+              <p id="password-error" class="text-red-500 text-xs mt-1 hidden">请输入密码</p>
+            </div>
+          </div>
+          <!-- 记住我和忘记密码 -->
+          <div class="flex justify-between items-center">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="remember-me" class="rounded text-primary focus:ring-primary/50">
+              <span class="text-sm text-neutral-600">记住我</span>
+            </label>
+            <a href="#" class="text-sm text-primary hover:underline">忘记密码？</a>
+          </div>
+          <!-- 登录按钮 -->
+          <button type="submit" class="w-full login-button" aria-label="登录">
+            <span id="login-text">登录</span>
+            <span id="login-loading" class="hidden">
+              <i class="fa fa-circle-o-notch fa-spin mr-2"></i> 登录中...
+            </span>
+          </button>
+          <!-- 注册链接 -->
+          <div class="text-center text-sm text-neutral-600">
+            还没有账号？ <a href="#" class="text-primary hover:underline">立即注册</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script>
+        // 价格筛选功能实现
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取筛选按钮并添加点击事件
+            const filterButton = document.getElementById('price-filter-btn');
+            const minPriceInput = document.getElementById('min-price');
+            const maxPriceInput = document.getElementById('max-price');
+            const productGrid = document.querySelector('.grid.grid-cols-1');
+            
+            // 保存原始商品列表，用于重置筛选
+            let originalProducts = [];
+            
+            // 初始化时保存原始商品
+            function saveOriginalProducts() {
+                const productCards = document.querySelectorAll('.grid.grid-cols-1 > div');
+                productCards.forEach(card => {
+                    originalProducts.push(card);
+                });
+            }
+            
+            // 保存原始商品
+            saveOriginalProducts();
+            
+            // 价格筛选功能
+            function filterProductsByPrice() {
+                // 获取用户输入的价格范围
+                const minPrice = parseFloat(minPriceInput.value) || 0;
+                const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+                
+                // 清空商品网格
+                productGrid.innerHTML = '';
+                
+                // 筛选符合条件的商品
+                originalProducts.forEach(product => {
+                    const productPrice = parseFloat(product.getAttribute('data-price'));
+                    
+                    // 检查商品价格是否在筛选范围内
+                    if (productPrice >= minPrice && productPrice <= maxPrice) {
+                        // 克隆商品卡片并添加到网格中
+                        const clone = product.cloneNode(true);
+                        productGrid.appendChild(clone);
+                    }
+                });
+                
+                // 如果没有符合条件的商品，显示提示信息
+                if (productGrid.children.length === 0) {
+                    const noResultMessage = document.createElement('div');
+                    noResultMessage.className = 'col-span-full text-center py-10';
+                    noResultMessage.innerHTML = '\n                        <div class="text-neutral-400 text-5xl mb-4">🔍</div>\n                        <p class="text-neutral-600 text-lg">没有找到符合价格范围的商品</p>\n                        <p class="text-neutral-500 mt-2">请尝试调整价格范围</p>\n                    ';
+                    productGrid.appendChild(noResultMessage);
+                }
+            }
+            
+            // 为筛选按钮添加点击事件
+            filterButton.addEventListener('click', filterProductsByPrice);
+        });
+    </script>
+    </body>
+</html>
